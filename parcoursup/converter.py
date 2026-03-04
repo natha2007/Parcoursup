@@ -88,6 +88,7 @@ def convert_json_to_mysql(
 	table_name: str,
 	renames: dict[str, str],
 	primary_keys: list[str],
+	not_null: bool,
 ):
 	with open(json_file_path, "r", encoding="utf-8") as file:
 		obj = json.load(file)
@@ -108,7 +109,11 @@ def convert_json_to_mysql(
 			raise ValueError(f"Error determining MySQL type for column '{key}'")
 		if mysql_type != "NULL":
 			valid_keys.append(key)
-			column_definitions.append(f"\t{key} {mysql_type}")
+			has_null = any(row.get(key) is None for row in flattened_obj)
+			column_definition = f"\t{key} {mysql_type}"
+			if not_null and not has_null:
+				column_definition += " NOT NULL"
+			column_definitions.append(column_definition)
 	with open(mysql_file_path, "w", encoding="utf-8") as file:
 		file.write(f"CREATE DATABASE IF NOT EXISTS {database_name};\n")
 		file.write(f"USE {database_name};\n")

@@ -13,6 +13,7 @@ def run(config: Config) -> None:
 		config.table_name,
 		config.renames,
 		config.primary_keys,
+		config.not_null,
 	)
 
 
@@ -53,6 +54,12 @@ def main() -> None:
 		"--primary",
 		nargs="+",
 		help="Primary keys.",
+	)
+	arg_parser.add_argument(
+		"-n",
+		"--not-null",
+		action="store_true",
+		help="Set keys with non-null values as NOT NULL.",
 	)
 	args = arg_parser.parse_args()
 	config = Config(args)

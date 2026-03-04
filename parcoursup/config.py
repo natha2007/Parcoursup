@@ -14,3 +14,4 @@ class Config:
 				key, new_key = rename.split(":", 1)
 				self.renames[key] = new_key
 		self.primary_keys: list[str] = args.primary or []
+		self.not_null: bool = args.not_null
