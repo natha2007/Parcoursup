@@ -14,6 +14,8 @@ def run(config: Config) -> None:
 		config.renames,
 		config.primary_keys,
 		config.not_null,
+		config.percentages,
+		config.counts,
 	)
 
 
@@ -60,6 +62,18 @@ def main() -> None:
 		"--not-null",
 		action="store_true",
 		help="Set keys with non-null values as NOT NULL.",
+	)
+	arg_parser.add_argument(
+		"-P",
+		"--percentages",
+		action="store_true",
+		help="Checks for percentages (0 to 100).",
+	)
+	arg_parser.add_argument(
+		"-C",
+		"--counts",
+		action="store_true",
+		help="Checks for counts (>= 0).",
 	)
 	args = arg_parser.parse_args()
 	config = Config(args)

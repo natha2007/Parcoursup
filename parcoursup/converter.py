@@ -89,6 +89,8 @@ def convert_json_to_mysql(
 	renames: dict[str, str],
 	primary_keys: list[str],
 	not_null: bool,
+	percentages: bool,
+	counts: bool,
 ):
 	with open(json_file_path, "r", encoding="utf-8") as file:
 		obj = json.load(file)
@@ -109,10 +111,26 @@ def convert_json_to_mysql(
 			raise ValueError(f"Error determining MySQL type for column '{key}'")
 		if mysql_type != "NULL":
 			valid_keys.append(key)
-			has_null = any(row.get(key) is None for row in flattened_obj)
+			valid_values = [value for value in column_values if value is not None]
+			has_null = len(valid_values) < len(column_values)
 			column_definition = f"\t{key} {mysql_type}"
 			if not_null and not has_null:
 				column_definition += " NOT NULL"
+			is_numeric = valid_values and all(
+				isinstance(value, (int, float)) and not isinstance(value, bool)
+				for value in valid_values
+			)
+			is_integer = valid_values and all(
+				isinstance(value, int) and not isinstance(value, bool)
+				for value in valid_values
+			)
+			if is_numeric:
+				minimum_value = min(valid_values)
+				maximum_value = max(valid_values)
+				if percentages and minimum_value >= 0 and maximum_value <= 100:
+					column_definition += f" CHECK ({key} >= 0 AND {key} <= 100)"
+				elif counts and is_integer and minimum_value >= 0:
+					column_definition += f" CHECK ({key} >= 0)"
 			column_definitions.append(column_definition)
 	with open(mysql_file_path, "w", encoding="utf-8") as file:
 		file.write(f"CREATE DATABASE IF NOT EXISTS {database_name};\n")

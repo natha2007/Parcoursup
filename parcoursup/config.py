@@ -15,3 +15,5 @@ class Config:
 				self.renames[key] = new_key
 		self.primary_keys: list[str] = args.primary or []
 		self.not_null: bool = args.not_null
+		self.percentages: bool = args.percentages
+		self.counts: bool = args.counts

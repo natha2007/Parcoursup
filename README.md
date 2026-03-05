@@ -172,7 +172,7 @@ python -m parcoursup.cli -i fr-esr-parcoursup.json
 
 Convert specified input file using defaults for output, database, and table. Rename keys, define primary keys, and set non-null values.
 ```bash
-python -m parcoursup.cli -i fr-esr-parcoursup.json -r acad_mies:academies g_olocalisation_des_formations:geolocalisation_des_formations -p session cod_uai cod_aff_form -n
+python -m parcoursup.cli -i fr-esr-parcoursup.json -r acad_mies:academies g_olocalisation_des_formations:geolocalisation_des_formations -p session cod_uai cod_aff_form -n -P -C
 ```
 
 ## 🎨 Command-Line Arguments
@@ -186,6 +186,8 @@ python -m parcoursup.cli -i fr-esr-parcoursup.json -r acad_mies:academies g_oloc
 | `-r, --rename`                | Rename keys. Use key:new_key.              |
 | `-p, --primary`               | Primary keys.                              |
 | `-n, --not-null`              | Set keys with non-null values as NOT NULL. |
+| `-P, --percentages`           | Checks for percentages (0 to 100).         |
+| `-C, --counts`                | Checks for counts (>= 0).                  |
 
 ## 🐛 Bugs
 
