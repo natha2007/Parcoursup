@@ -17,3 +17,4 @@ class Config:
 		self.not_null: bool = args.not_null
 		self.percentages: bool = args.percentages
 		self.counts: bool = args.counts
+		self.split: int = args.split

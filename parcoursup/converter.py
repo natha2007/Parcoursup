@@ -1,5 +1,6 @@
 from __future__ import annotations
 import json
+import os
 
 
 def rename_keys(obj, renames: dict[str, str]):
@@ -91,6 +92,7 @@ def convert_json_to_mysql(
 	not_null: bool,
 	percentages: bool,
 	counts: bool,
+	split: int,
 ):
 	obj = []
 	for json_file_path in json_file_paths:
@@ -138,17 +140,30 @@ def convert_json_to_mysql(
 				elif counts and is_integer and minimum_value >= 0:
 					column_definition += f" CHECK ({key} >= 0)"
 			column_definitions.append(column_definition)
-	with open(mysql_file_path, "w", encoding="utf-8") as file:
-		file.write(f"CREATE DATABASE IF NOT EXISTS {database_name};\n")
-		file.write(f"USE {database_name};\n")
-		file.write(f"DROP TABLE IF EXISTS {table_name};\n")
-		file.write(f"CREATE TABLE IF NOT EXISTS {table_name} (\n")
-		file.write(",\n".join(column_definitions))
-		if primary_keys:
-			file.write(f",\n\tPRIMARY KEY ({", ".join(primary_keys)})")
-		file.write("\n);\n")
-		for row in flattened_obj:
-			insert_statement = create_insert_statement(table_name, valid_keys, row)
-			file.write(insert_statement)
-		file.write(f"OPTIMIZE TABLE {table_name};\n")
-		file.write("COMMIT;")
+	file_index = 1
+	insert_count = 0
+	file = open(mysql_file_path, "w", encoding="utf-8")
+	file.write(f"CREATE DATABASE IF NOT EXISTS {database_name};\n")
+	file.write(f"USE {database_name};\n")
+	file.write(f"DROP TABLE IF EXISTS {table_name};\n")
+	file.write(f"CREATE TABLE IF NOT EXISTS {table_name} (\n")
+	file.write(",\n".join(column_definitions))
+	if primary_keys:
+		file.write(f",\n\tPRIMARY KEY ({", ".join(primary_keys)})")
+	file.write("\n);\n")
+	for row in flattened_obj:
+		if split > 0 and insert_count >= split:
+			file.write("COMMIT;\n")
+			file.close()
+			file_index += 1
+			insert_count = 0
+			root, ext = os.path.splitext(mysql_file_path)
+			next_mysql_file_path = f"{root}_{file_index:03d}{ext}"
+			file = open(next_mysql_file_path, "w", encoding="utf-8")
+			file.write(f"USE {database_name};\n")
+		insert_statement = create_insert_statement(table_name, valid_keys, row)
+		file.write(insert_statement)
+		insert_count += 1
+	file.write(f"OPTIMIZE TABLE {table_name};\n")
+	file.write("COMMIT;")
+	file.close()

@@ -16,6 +16,7 @@ def run(config: Config) -> None:
 		config.not_null,
 		config.percentages,
 		config.counts,
+		config.split,
 	)
 
 
@@ -75,6 +76,13 @@ def main() -> None:
 		"--counts",
 		action="store_true",
 		help="Checks for counts (>= 0).",
+	)
+	arg_parser.add_argument(
+		"-s",
+		"--split",
+		type=int,
+		default=15000,
+		help="Split insert requests into multiple `.sql` files. Default: `15000`.",
 	)
 	args = arg_parser.parse_args()
 	config = Config(args)
