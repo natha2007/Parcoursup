@@ -30,11 +30,11 @@ parcoursup (<u>**session**</u>, <u>**cod_uai**</u>, <u>**cod_aff_form**</u>, con
 	_Note : `dep`, `dep_lib`, `region_etab_aff`, `detail_forma`, `geolocalisation_des_formations_lon`, `geolocalisation_des_formations_lat`, `nb_voe_pp_internat`, `nb_cla_pp_internat`, `nb_cla_pp_pasinternat`, `acc_internat`, `acc_term`, `acc_term_f`, `pct_etab_orig`, `lib_grp1`, `ran_grp1`, `lib_grp2`, `ran_grp2`, `lib_grp3`, `ran_grp3`, `detail_forma2`, `lien_form_psup`, `taux_acces_ens`, `part_acces_gen`, `part_acces_tec`, `part_acces_pro`, `etablissement_id_paysage`, `composante_id_paysage` peuvent être nuls._
 - **Contraintes de domaine (CHECK) :**
     - Si un attribut représente un pourcentage (`pct_*`), alors sa valeur est comprise entre 0 et 100.
-    - Si un attribut représente un effectif (`nb_*`, `prop_*`, `acc_*`), alors sa valeur est supérieure ou égale à 0.
+    - Si un attribut représente un effectif (`voe_*`, `nb_*`, `prop_*`, `acc_*`), alors sa valeur est supérieure ou égale à 0.
 
 **Contraintes Statiques Sémantiques (basées sur les applications)**
-- **Inclusion d'effectifs :**
-	- Si un sous-effectif est déclaré (ex. : `voe_tot_f` pour les candidates femmes), alors sa valeur doit être inférieure ou égale à l'effectif global correspondant (`voe_tot`).
+- **Inclusion et cohérence des effectifs :**
+	- Le nombre de candidates femmes ou de boursiers ne peut absolument pas dépasser le nombre total de vœux ou d'admis. Les attributs de sous-effectifs doivent obligatoirement être inférieurs ou égaux à leurs effectifs globaux de référence correspondants (ex. : `voe_tot_f` $\le$ `voe_tot`, `nb_voe_pp_bg_brs` $\le$ `nb_voe_pp_bg`, `acc_tot_f` $\le$ `acc_tot`, `acc_brs` $\le$ `acc_neobac`).
 - **Dépendances fonctionnelles (DF) :**
 	- Si l'attribut `cod_uai` est identique pour deux tuples, alors les attributs de localisation (`dep`, `dep_lib`, `region_etab_aff`, `academies`, `ville_etab`) doivent être strictement identiques.
 - **Capacité d'accueil :**
@@ -49,8 +49,6 @@ parcoursup (<u>**session**</u>, <u>**cod_uai**</u>, <u>**cod_aff_form**</u>, con
 	- L'ajout de candidatures en phase complémentaire ne peut se déclencher pour les vœux insérés dans la phase complémentaire active (`nb_voe_pc` > 0) que si le nombre d'admis en phase principale (`acc_pp`) est resté strictement inférieur à la capacité d'accueil de l'établissement par formation finale (`capa_fin`).
 
 _Note : Comme les bases de données de [data.gouv.fr](https://www.data.gouv.fr) sont au format CSV/JSON, elles manquent de contraintes ; donc seules les contraintes statiques explicites ont été ajoutées automatiquement à cette phase._
-
-On doit aussi vérifier la cohérence des effectifs : le nombre de candidates ou de boursiers ne peut absolument pas dépasser le nombre total de vœux ou d'admis.
 
 ## 🤔 Exemples de redondances et d'anomalies existantes dans le schéma
 
