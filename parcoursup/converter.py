@@ -154,6 +154,9 @@ def check_functional_dependencies(file, fds_path: str, table_name: str) -> None:
 				continue
 			left_string = ", ".join(left_columns)
 			right_string = ", ".join(right_columns)
+			where_clauses = " AND ".join(
+				f"{column} IS NOT NULL" for column in left_columns
+			)
 			having_clauses = " OR ".join(
 				f"COUNT(DISTINCT {column}) > 1" for column in right_columns
 			)
@@ -163,6 +166,7 @@ def check_functional_dependencies(file, fds_path: str, table_name: str) -> None:
 			file.write("\t\tWHEN EXISTS (\n")
 			file.write("\t\t\tSELECT 1\n")
 			file.write(f"\t\t\tFROM {table_name}\n")
+			file.write(f"\t\t\tWHERE {where_clauses}\n")
 			file.write(f"\t\t\tGROUP BY {left_string}\n")
 			file.write(f"\t\t\tHAVING {having_clauses}\n")
 			file.write("\t\t) THEN 'Invalid'\n")
@@ -181,6 +185,7 @@ def check_functional_dependencies(file, fds_path: str, table_name: str) -> None:
 			file.write("SELECT\n")
 			file.write(f"\t{select_sql}\n")
 			file.write(f"FROM {table_name}\n")
+			file.write(f"WHERE {where_clauses}\n")
 			file.write(f"GROUP BY {left_string}\n")
 			file.write(f"HAVING {having_sql};\n\n")
 
